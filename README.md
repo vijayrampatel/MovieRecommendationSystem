@@ -1,73 +1,122 @@
 # Movie Recommendation System
+<hr>
 
-A machine learning-based movie recommendation system that provides personalized movie suggestions based on user preferences, viewing history, and movie characteristics.
+Authors: Nevin Selby, Vijayram Patel
 
-## Table of Contents
-- [Project Overview](#project-overview)
-- [Features](#features)
-- [Technologies Used](#technologies-used)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Methodology](#methodology)
-- [Dataset](#dataset)
-- [License](#license)
+  <hr>
 
-## Project Overview
-This Movie Recommendation System aims to solve the problem of finding relevant movies in the vast sea of available content. The system analyzes user preferences and movie characteristics to suggest films that align with user interests, enhancing the movie discovery experience.
+## Overview
+This project implements a content-based movie recommendation system that suggests similar movies based on various movie attributes including cast, crew, keywords, genres, overview, and spoken languages. The system uses natural language processing techniques and cosine similarity to find movies that share similar characteristics.
 
-## Features
-- **Collaborative Filtering:** Recommends movies based on similar users' preferences.
-- **Content-Based Filtering:** Suggests movies similar to those a user has enjoyed previously based on movie attributes like genre, cast, and directors.
-- **Hybrid Recommendation:** Combines both collaborative and content-based approaches for improved recommendation quality.
-- **User-Friendly Interface:** Simple interface for interacting with the recommendation system.
+## How It Works
 
-## Technologies Used
-- **Python** for core development and data processing.
-- **Pandas & NumPy** for data manipulation.
-- **Scikit-learn** for implementing machine learning algorithms.
+### Data Processing Pipeline
+1. **Data Loading and Merging**:
+   - Loads two datasets: `movies.csv` (containing movie details) and `credits.csv` (containing cast and crew information)
+   - Merges these datasets on the movie title
 
-## Installation
-```sh
-# Clone the repository
-git clone https://github.com/vijayrampatel/MovieRecommendationSystem.git
+2. **Feature Selection**:
+   - Selects relevant columns: title, movie_id, cast, crew, vote_average, spoken_languages, popularity, keywords, genres, and overview
 
-# Change to project directory
-cd MovieRecommendationSystem
+3. **Data Cleaning**:
+   - Removes rows with missing values
+   - Converts JSON strings in columns like genres, keywords, cast, and crew into Python lists
 
-# Install required dependencies
-pip install -r requirements.txt
+4. **Feature Extraction**:
+   - Extracts movie genres from the genres column
+   - Extracts keywords from the keywords column
+   - Extracts top 3 cast members from the cast column
+   - Extracts director information from the crew column
+   - Extracts spoken languages
+   - Splits the overview text into words
+
+5. **Text Processing**:
+   - Removes spaces between multi-word features (e.g., "Science Fiction" becomes "ScienceFiction")
+   - Converts all text to lowercase
+   - Combines all features into a single "tags" column
+   - Applies stemming to reduce words to their root form (e.g., "loving" becomes "love")
+
+6. **Vector Representation**:
+   - Uses CountVectorizer to convert the tags into a numerical representation
+   - Limits to 5000 most frequent words and removes common English stop words
+
+7. **Similarity Calculation**:
+   - Computes cosine similarity between all movie vectors
+   - Creates a similarity matrix for all movies in the dataset
+
+### Recommendation Function
+The `recommend(movie)` function:
+1. Finds the index of the input movie
+2. Retrieves the similarity scores from the similarity matrix for that movie
+3. Sorts all movies by their similarity score (in descending order)
+4. Returns the top 5 most similar movies (excluding the input movie itself)
+
+## Technical Implementation Details
+- **Libraries Used**: 
+  - pandas: For data manipulation
+  - numpy: For numerical operations
+  - sklearn: For feature extraction and similarity calculation
+  - ast: For parsing string representations of Python literals
+  - nltk: For natural language processing
+
+- **Key Techniques**:
+  - **Content-Based Filtering**: Recommendations based on movie attributes rather than user ratings
+  - **Bag of Words**: Converting text to numerical vectors using word counts
+  - **Stemming**: Reducing words to their base form to improve matching
+  - **Cosine Similarity**: Measuring similarity between movie vectors regardless of their magnitude
+
+## How to Use
+
+1. Make sure you have the required dependencies installed:
+   ```
+   pip install pandas numpy scikit-learn nltk
+   ```
+
+2. Place the `movies.csv` and `credits.csv` files in the same directory as the notebook
+
+3. Run the Jupyter notebook sequentially
+
+4. To get recommendations for a specific movie, use:
+   ```python
+   recommend('Movie Title')
+   ```
+   Replace 'Movie Title' with the exact title of a movie in the dataset.
+
+## Example Recommendations
+
+For "Avatar":
+```python
+recommend('Avatar')
 ```
 
-## Usage
-Run the main application:
-```sh
-python main.py
+For "Iron Man":
+```python
+recommend('Iron Man')
 ```
-Follow the on-screen instructions to:
-- Input your movie preferences
-- Rate movies you've watched
-- Receive personalized recommendations
 
-## Methodology
-The recommendation system employs the following approach:
-1. Data preprocessing and cleaning
-2. Feature extraction from movie metadata
-3. Implementation of recommendation algorithms
-4. Evaluation of recommendation quality
-5. Generation of personalized suggestions based on user input
+## Dataset Structure
 
-## Dataset
-This project utilizes movie datasets containing information such as:
-- Movie titles, genres, and release dates
-- User ratings and reviews
-- Cast and crew information
-- Plot descriptions
+The system requires two CSV files:
 
-## Authors
-Vijayram & Nevin
+1. **movies.csv** - Contains movie details including:
+   - title
+   - movie_id
+   - vote_average
+   - spoken_languages (JSON format)
+   - popularity
+   - keywords (JSON format)
+   - genres (JSON format)
+   - overview
 
-## License
-This project is licensed under the MIT License - see the LICENSE file for details.
+2. **credits.csv** - Contains:
+   - title
+   - cast (JSON format)
+   - crew (JSON format)
 
-_Last Updated: March 2025_
+## Limitations and Future Improvements
 
+- The system only recommends movies based on content similarity, not user preferences
+- The current implementation doesn't account for the popularity or rating of movies
+- Adding a user interface would make the system more accessible
+- Implementing collaborative filtering alongside content-based filtering could improve recommendations
+- Considering the recency of movies could provide more relevant recommendations
